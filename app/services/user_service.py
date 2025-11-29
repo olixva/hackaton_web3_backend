@@ -4,6 +4,7 @@ from fastapi import HTTPException
 # DTOs
 from app.dtos.user.user_response import GetUserResponse
 from app.dtos.user.user_response import CreateUserResponse
+from app.dtos.user.user_request import CreateUserRequest
 # Models
 from app.models.user import UserWallet
 from app.models.user import User
@@ -30,12 +31,12 @@ class UserService:
         )
 
     @staticmethod
-    async def create_user(name: str, email: str) -> CreateUserResponse:
+    async def create_user(request: CreateUserRequest) -> CreateUserResponse:
         # TODO: Call wallet generation service
 
         new_user = User(
-            name=name,
-            email=email,
+            name=request.name,
+            email=request.email,
             created_at=datetime.now(),
             user_wallet=UserWallet(
                 bsv_address="",
