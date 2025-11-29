@@ -9,6 +9,6 @@ from app.services.meter_service import MeterService
 meter_router = APIRouter(prefix="/meter", tags=["meter"])
 
 
-@meter_router.post("/meter", response_model=CreateMeterResponse)
+@meter_router.post("", response_model=CreateMeterResponse)
 async def create_meter(request: CreateMeterRequest):
     return await MeterService.create_meter(request)
