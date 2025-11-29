@@ -5,8 +5,9 @@ from bson import ObjectId
 
 class MeterReading(Document):
     user_id: ObjectId
-    meter_id: str
-    reading: float
+    payment_id: ObjectId | None = None
+    kw_consumed: float
+    cost_euro: float | None = None
     timestamp: datetime
 
     class Settings:
