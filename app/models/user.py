@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 from beanie import Document
+=======
+from beanie import Document, PydanticObjectId
+from pydantic import EmailStr
+>>>>>>> de72181 (feat: implement user retrieval service and response model)
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
@@ -16,4 +21,16 @@ class User(Document):
     user_wallet: UserWallet
 
     class Settings:
+<<<<<<< HEAD
         name = "users"
+=======
+        name = "users"
+
+    @staticmethod
+    def is_valid_id(id) -> bool:
+        try:
+            PydanticObjectId(id)
+        except Exception:
+            return False
+        return True
+>>>>>>> de72181 (feat: implement user retrieval service and response model)
