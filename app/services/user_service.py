@@ -39,7 +39,7 @@ class UserService:
             created_at=datetime.now(),
             user_wallet=UserWallet(
                 bsv_address="",
-                bsv_pubkey="",
+                bsv_public_key="",
                 encrypted_wif="",
             ),
         )
