@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 # Routers
 from app.routes.user_route import user_router
+from app.routes.meter_route import meter_router
 
 # Database
 from app.config.mongo import MongoDbClient
@@ -23,3 +24,4 @@ app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(user_router)
+app.include_router(meter_router)
