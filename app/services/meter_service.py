@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import HTTPException
 from typing import Any
 
@@ -44,6 +44,20 @@ class MeterService:
         end_date: str | None = None,
         step: StepEnum = StepEnum.DAILY
     ) -> GenerateChartMeterResponse:
+        # Set default dates if not provided
+        now = datetime.now()
+        if start_date is None:
+            default_periods = {
+                StepEnum.HOURLY: timedelta(hours=24),
+                StepEnum.DAILY: timedelta(days=30),
+                StepEnum.WEEKLY: timedelta(weeks=4),
+                StepEnum.MONTHLY: timedelta(days=365),  # approx 12 months
+            }
+            period = default_periods.get(step, timedelta(days=30))
+            start_date = (now - period).isoformat()
+        if end_date is None:
+            end_date = now.isoformat()
+        
         # Build match stage
         match_stage = MeterService._build_match_stage(
             start_date, 
