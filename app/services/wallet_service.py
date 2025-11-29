@@ -8,7 +8,7 @@ class WalletService:
     @staticmethod
     def create_wallet() -> UserWallet:
         private_key = PrivateKey()
-        bsv_address = private_key.address()
+        bsv_address = private_key.public_key().address()
         bsv_public_key = private_key.public_key().hex()
         encrypted_wif = EncryptionUtils().encrypt_wif(private_key.wif())
 
