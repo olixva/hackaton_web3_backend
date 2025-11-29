@@ -7,7 +7,6 @@ from app.dtos.meter.meter_response import CreateMeterResponse
 from app.dtos.meter.meter_response import GenerateChartMeterResponse
 from app.dtos.meter.meter_response import ChartItem
 from app.dtos.meter.meter_request import CreateMeterRequest
-from app.dtos.meter.meter_request import GenerateChartMeterRequest
 from app.dtos.meter.meter_request import StepEnum
 # Models
 from app.models.meter_reading import MeterReading
@@ -40,25 +39,30 @@ class MeterService:
         return CreateMeterResponse(id=str(new_meter.id))
     
     @staticmethod
-    async def generate_chart(request: GenerateChartMeterRequest) -> GenerateChartMeterResponse:
+    async def generate_chart(
+        user_id: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+        step: StepEnum = StepEnum.DAILY
+    ) -> GenerateChartMeterResponse:
         # Build match stage
         match_stage = MeterService._build_match_stage(
-            request.start_date, 
-            request.end_date, 
-            request.user_id
+            start_date, 
+            end_date, 
+            user_id
         )
         
         # Start pipeline with match
         pipeline = [{"$match": match_stage}]
         
         # Build group stage based on step
-        if request.step == StepEnum.MONTHLY:
+        if step == StepEnum.MONTHLY:
             MeterService._build_monthly_pipeline(pipeline)
-        elif request.step == StepEnum.DAILY:
+        elif step == StepEnum.DAILY:
             MeterService._build_daily_pipeline(pipeline)
-        elif request.step == StepEnum.WEEKLY:
+        elif step == StepEnum.WEEKLY:
             MeterService._build_weekly_pipeline(pipeline)
-        elif request.step == StepEnum.HOURLY:
+        elif step == StepEnum.HOURLY:
             MeterService._build_hourly_pipeline(pipeline)
         
         # Execute aggregation
