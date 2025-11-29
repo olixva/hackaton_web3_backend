@@ -6,3 +6,8 @@ class GetUserResponse(BaseModel):
     name: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class CreateUserResponse(BaseModel):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
