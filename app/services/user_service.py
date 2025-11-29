@@ -1,6 +1,5 @@
 from datetime import datetime
 from fastapi import HTTPException
-from pydantic import EmailStr
 
 # DTOs
 from app.dtos.user.user_response import GetUserResponse
