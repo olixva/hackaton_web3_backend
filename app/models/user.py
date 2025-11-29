@@ -1,4 +1,4 @@
-from beanie import Document, PydanticObjectId
+from app.models.base_model import Model
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
@@ -9,7 +9,7 @@ class UserWallet(BaseModel):
     encrypted_wif: str
 
 
-class User(Document):
+class User(Model):
     name: str
     email: EmailStr
     created_at: datetime
@@ -17,11 +17,3 @@ class User(Document):
 
     class Settings:
         name = "users"
-
-    @staticmethod
-    def is_valid_id(id) -> bool:
-        try:
-            PydanticObjectId(id)
-        except Exception:
-            return False
-        return True

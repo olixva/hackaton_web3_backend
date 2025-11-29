@@ -1,18 +1,15 @@
-from beanie import Document, PydanticObjectId
+from app.models.base_model import Model
+from beanie import PydanticObjectId
 from datetime import datetime
 
 
-class MeterReading(Document):
-<<<<<<< HEAD
-    user_id: ObjectId
-    payment_id: ObjectId | None = None
+class MeterReading(Model):
+    payment_id: PydanticObjectId | None = None
+    user_id: PydanticObjectId
     kw_consumed: float
     cost_euro: float | None = None
-=======
-    user_id: PydanticObjectId
     meter_id: str
     reading: float
->>>>>>> de72181 (feat: implement user retrieval service and response model)
     timestamp: datetime
 
     class Settings:

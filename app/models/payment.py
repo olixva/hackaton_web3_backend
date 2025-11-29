@@ -1,8 +1,8 @@
 from enum import Enum
+from app.models.base_model import Model
 from datetime import datetime
-from bson import ObjectId
 from pydantic import Field
-from beanie import Document, PydanticObjectId
+from beanie import PydanticObjectId
 
 
 class PaymentStatus(str, Enum):
@@ -10,9 +10,9 @@ class PaymentStatus(str, Enum):
     CONFIRMED = "confirmed"
     FAILED = "failed"
 
-class Payment(Document):
+class Payment(Model):
     user_id: PydanticObjectId
-    meter_reading_id: ObjectId
+    meter_reading_id: PydanticObjectId
     amount_sats: float
     amount_euro: float
     tx_id: str
