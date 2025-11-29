@@ -1,9 +1,9 @@
 from pymongo import AsyncMongoClient
 from beanie import init_beanie
-from settings import settings
+from app.config.settings import settings
 # Import your document models here
 from app.models.meter_reading import MeterReading
-from app.models.payments import Payment
+from app.models.payment import Payment
 from app.models.user import User
 
 
