@@ -6,3 +6,4 @@ beanie
 pydantic_settings
 # Blockchain
 bsv-sdk
+cryptography
