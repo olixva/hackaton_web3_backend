@@ -9,7 +9,6 @@ class MeterReading(Model):
     kw_consumed: float
     cost_euro: float | None = None
     meter_id: str
-    reading: float
     timestamp: datetime
 
     class Settings:

@@ -28,9 +28,8 @@ class MeterService:
 
         new_meter = MeterReading(
             user_id=PydanticObjectId(request.user_id),
-            kw_consumed=request.reading, # TODO: Calculate kw_consumed based on previous reading
+            kw_consumed=request.reading,
             meter_id=request.meter_id,
-            reading=request.reading,
             payment_id=PydanticObjectId(request.payment_id) if request.payment_id else None,
             timestamp=datetime.now(),
         )
