@@ -12,7 +12,6 @@ class UserWallet(BaseModel):
 class User(Model):
     name: str
     email: EmailStr
-    bsv_address: str | None = None
     created_at: datetime
     user_wallet: UserWallet
     profile_image_url: str | None = None
