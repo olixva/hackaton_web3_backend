@@ -26,7 +26,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://hackaton-web3-frontend.vercel.app"
+        "https://hackaton-web3-frontend.vercel.app",
         "http://localhost:5173",
     ],
     allow_credentials=True,
