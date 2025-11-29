@@ -1,14 +1,16 @@
 from datetime import datetime
 from fastapi import HTTPException
+from pydantic import EmailStr
 
 # DTOs
 from app.dtos.user.user_response import GetUserResponse
 from app.dtos.user.user_response import CreateUserResponse
 from app.dtos.user.user_request import CreateUserRequest
 # Models
-from app.models.user import UserWallet
 from app.models.user import User
 from beanie import PydanticObjectId
+# Wallet
+from app.services.wallet_service import WalletService
 
 
 class UserService:
@@ -32,18 +34,14 @@ class UserService:
 
     @staticmethod
     async def create_user(request: CreateUserRequest) -> CreateUserResponse:
-        # TODO: Call wallet generation service
-
+        new_wallet = WalletService.create_wallet()
         new_user = User(
             name=request.name,
             email=request.email,
             created_at=datetime.now(),
-            user_wallet=UserWallet(
-                bsv_address="",
-                bsv_public_key="",
-                encrypted_wif="",
-            ),
+            user_wallet=new_wallet,
         )
+
         await new_user.insert()
 
         return CreateUserResponse(id=str(new_user.id))
