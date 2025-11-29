@@ -21,8 +21,14 @@ class UserService:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return GetUserResponse(id=str(user.id), name=user.name)
-    
+        return GetUserResponse(
+            id=str(user.id),
+            name=user.name,
+            email=user.email,
+            bsv_address=user.user_wallet.bsv_address,
+            profile_image_url=user.profile_image_url,
+        )
+
     @staticmethod
     async def create_user(name: str, email: str) -> CreateUserResponse:
         # TODO: Call wallet generation service
