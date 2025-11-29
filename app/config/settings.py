@@ -6,6 +6,9 @@ class Settings(BaseSettings):
     # MongoDB Configuration
     MONGODB_URL: str = "mongodb://localhost:27017"
 
+    # Encryption Secret (must be a valid Fernet key)
+    ENCRYPTION_SECRET: str = "your-default-fernet-key-here"
+
     # Load environment variables from a .env file
     model_config = SettingsConfigDict(env_file=".env")
 
