@@ -1,1 +1,6 @@
+# API
 fastapi[standard]
+# BBDD
+beanie
+# Settings
+pydantic_settings
