@@ -21,9 +21,6 @@ class User(Document):
     user_wallet: UserWallet
 
     class Settings:
-<<<<<<< HEAD
-        name = "users"
-=======
         name = "users"
 
     @staticmethod
@@ -33,4 +30,3 @@ class User(Document):
         except Exception:
             return False
         return True
->>>>>>> de72181 (feat: implement user retrieval service and response model)
