@@ -1,8 +1,8 @@
 from enum import Enum
-from beanie import Document
 from datetime import datetime
 from bson import ObjectId
 from pydantic import Field
+from beanie import Document, PydanticObjectId
 
 
 class PaymentStatus(str, Enum):
@@ -11,7 +11,7 @@ class PaymentStatus(str, Enum):
     FAILED = "failed"
 
 class Payment(Document):
-    user_id: ObjectId
+    user_id: PydanticObjectId
     meter_reading_id: ObjectId
     amount_sats: float
     amount_euro: float
