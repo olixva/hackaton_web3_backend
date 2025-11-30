@@ -1,4 +1,5 @@
 import httpx
+import requests
 from typing import Tuple
 
 from app.config.settings import settings
@@ -76,3 +77,24 @@ class WhatsOnChainUtils:
         source_tx = Transaction.from_hex(raw_hex)
 
         return source_tx, tx_pos
+    
+    @staticmethod
+    def get_balance(address: str) -> dict:
+        url = f"https://api.whatsonchain.com/v1/bsv/main/address/{address}/balance"
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
+    @staticmethod
+    def convert_satoshis_to_euro(satoshis: int) -> float:
+        bsv_amount = satoshis / 100000000 
+        bsv_price_eur = WhatsOnChainUtils.get_bsv_price_eur()
+        return bsv_amount * bsv_price_eur
+
+    @staticmethod
+    def get_bsv_price_eur() -> float:
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash-sv&vs_currencies=eur"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("bitcoin-cash-sv", {}).get("eur", 0.0)
