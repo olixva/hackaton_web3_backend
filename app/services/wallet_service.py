@@ -1,6 +1,7 @@
+from bsv import PrivateKey
+
 from app.models.user import UserWallet
 from app.utils.encryption_utils import EncryptionUtils
-from bsv import PrivateKey
 
 
 class WalletService:

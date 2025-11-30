@@ -11,6 +11,7 @@ from app.models.user import User
 from beanie import PydanticObjectId
 # Wallet
 from app.services.wallet_service import WalletService
+from app.utils.whatsonchain_utils import WhatsOnChainUtils
 
 
 class UserService:
@@ -24,11 +25,24 @@ class UserService:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
+        # Get wallet balance
+        balance_satoshis = None
+        balance_euro = None
+        if user.user_wallet and user.user_wallet.bsv_address:
+            balance_satoshis = await WhatsOnChainUtils.get_balance(user.user_wallet.bsv_address)
+            balance_euro = await WhatsOnChainUtils.convert_satoshis_to_euro(balance_satoshis)
+            # Update the user wallet
+            user.user_wallet.balance_satoshis = balance_satoshis
+            user.user_wallet.balance_euro = balance_euro
+            await user.save()
+
         return GetUserResponse(
             id=str(user.id),
             name=user.name,
             email=user.email,
-            bsv_address=user.user_wallet.bsv_address,
+            bsv_address=user.user_wallet.bsv_address if user.user_wallet else None,
+            balance_satoshis=balance_satoshis,
+            balance_euro=balance_euro,
             profile_image_url=user.profile_image_url,
         )
 
@@ -67,5 +81,7 @@ class UserService:
             name=user.name,
             email=user.email,
             bsv_address=user.user_wallet.bsv_address,
+            balance_satoshis=user.user_wallet.balance_satoshis if user.user_wallet else None,
+            balance_euro=user.user_wallet.balance_euro if user.user_wallet else None,
             profile_image_url=user.profile_image_url,
         )
