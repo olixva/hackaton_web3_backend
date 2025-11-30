@@ -85,12 +85,12 @@ class WhatsOnChainUtils:
 
     @staticmethod
     async def get_bsv_price_eur() -> float:
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-sv&vs_currencies=eur"
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash-sv&vs_currencies=eur"
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(url)
             resp.raise_for_status()
         data = resp.json()
-        return data.get("bitcoin-sv", {}).get("eur", 0.0)
+        return data.get("bitcoin-cash-sv", {}).get("eur", 0.0)
 
     @staticmethod
     def _headers() -> dict:
