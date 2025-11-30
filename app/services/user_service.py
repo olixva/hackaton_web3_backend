@@ -8,9 +8,11 @@ from app.dtos.user.user_request import CreateUserRequest
 from app.dtos.user.user_request import PatchUserRequest
 # Models
 from app.models.user import User
+# Beanie
 from beanie import PydanticObjectId
 # Wallet
 from app.services.wallet_service import WalletService
+from app.services.meter_service import MeterService
 from app.utils.whatsonchain_utils import WhatsOnChainUtils
 
 
@@ -36,6 +38,9 @@ class UserService:
             user.user_wallet.balance_euro = balance_euro
             await user.save()
 
+        # Calculate monthly usage
+        monthly_usage_kwh = await MeterService.get_monthly_usage_kwh(user_id)
+        
         return GetUserResponse(
             id=str(user.id),
             name=user.name,
@@ -43,6 +48,7 @@ class UserService:
             bsv_address=user.user_wallet.bsv_address if user.user_wallet else None,
             balance_satoshis=balance_satoshis,
             balance_euro=balance_euro,
+            montly_usage_kwh=monthly_usage_kwh,
             profile_image_url=user.profile_image_url,
         )
 

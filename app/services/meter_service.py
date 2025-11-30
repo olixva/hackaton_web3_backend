@@ -216,3 +216,21 @@ class MeterService:
             else:
                 match_stage["timestamp"] = {"$lte": date_end_date}
         return match_stage
+
+    @staticmethod
+    async def get_monthly_usage_kwh(user_id: str) -> float:
+        if not MeterReading.is_valid_id(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        start_of_month = datetime(current_year, current_month, 1)
+        next_month = datetime(current_year if current_month < 12 else current_year + 1, current_month % 12 + 1, 1)
+        
+        pipeline = [
+            {"$match": {"user_id": PydanticObjectId(user_id), "timestamp": {"$gte": start_of_month, "$lt": next_month}}},
+            {"$group": {"_id": None, "total_kwh": {"$sum": "$kw_consumed"}}}
+        ]
+        result = await MeterReading.aggregate(pipeline).to_list()
+        
+        return result[0]["total_kwh"] if result else 0.0

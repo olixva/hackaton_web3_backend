@@ -12,6 +12,8 @@ class GetUserResponse(BaseModel):
     balance_euro: float | None = None
     # Image
     profile_image_url: str | None = None
+    # Monthly usage
+    montly_usage_kwh: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
