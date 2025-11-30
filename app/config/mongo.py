@@ -2,6 +2,7 @@ from pymongo import AsyncMongoClient
 from beanie import init_beanie
 from app.config.settings import settings
 # Import your document models here
+from app.models.alarm_history import AlarmHistory
 from app.models.meter_reading import MeterReading
 from app.models.payment import Payment
 from app.models.user import User
@@ -10,7 +11,7 @@ from app.models.alarm import Alarm
 
 class MongoDbClient:
     def __init__(self, database_name: str = "hackaton_web3_db"):
-        self.models = [MeterReading, Payment, User, Alarm]
+        self.models = [MeterReading, Payment, User, Alarm, AlarmHistory]
         self.client = AsyncMongoClient(settings.MONGODB_URL)
         self.database_name = database_name
 
