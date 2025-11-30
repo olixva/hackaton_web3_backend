@@ -66,3 +66,8 @@ async def get_alarms_history(user_id: str):
             triggered_at=h.triggered_at
         ) for h in history
     ]
+
+@alarm_router.delete("/history/{history_id}")
+async def delete_alarm_history(history_id: str):
+    await AlarmService.delete_alarm_history(history_id)
+    return {"message": "Alarm history deleted"}

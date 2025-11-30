@@ -111,3 +111,14 @@ class AlarmService:
             triggered_at=datetime.now(),
         )
         await new_history.insert()
+
+    @staticmethod
+    async def delete_alarm_history(history_id: str) -> None:
+        if not AlarmHistory.is_valid_id(history_id):
+            raise HTTPException(status_code=400, detail="Invalid history ID format")
+
+        history = await AlarmHistory.find_one(AlarmHistory.id == PydanticObjectId(history_id))
+        if not history:
+            raise HTTPException(status_code=404, detail="Alarm history not found")
+
+        await history.delete()
