@@ -24,14 +24,13 @@ class MeterService:
         if not MeterReading.is_valid_id(request.user_id):
             raise HTTPException(status_code=400, detail="Invalid user ID format")
         
+        # TODO: Try to pay if we cant possible default
         if not request.payment_id:
-            raise HTTPException(status_code=400, detail="Not paid yet")
-
-        if not MeterReading.is_valid_id(request.payment_id):
-            raise HTTPException(status_code=400, detail="Invalid payment ID format")
+            ## Possible defaulter case, allow None
+            pass
 
         # Get user for tariff
-        user = await User.find_one(User.id == PydanticObjectId(request.user_id))
+        user = await User.find_one({"_id": PydanticObjectId(request.user_id)})
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
@@ -85,7 +84,7 @@ class MeterService:
             end_date = now.isoformat()
         
         # Get user for tariff
-        user = await User.find_one(User.id == PydanticObjectId(user_id))
+        user = await User.find_one({"_id": PydanticObjectId(user_id)})
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         tariff = user.tariff

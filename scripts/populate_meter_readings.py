@@ -130,7 +130,7 @@ def _simulate_hourly_kwh(ts: datetime, base_hourly_kwh: float) -> float:
 
 async def main():
     # Cambia este ID por uno real de tu base de datos
-    user_id = "692b566e0ef3a85601b288f2"
+    user_id = "692b9e2c0c45d7f4031812c4"
     meter_id = "meter_001"
 
     await populate_hourly_meter_readings(
