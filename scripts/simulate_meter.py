@@ -17,16 +17,22 @@ class SimulateMeter:
 
     # Post meter readings to the backend via HTTP
     async def post_meter_reading(self, kw: float):
-        url = "https://hackaton-web3-backend.vercel.app//meter"
+        url = "https://hackaton-web3-backend.vercel.app/meter"
         data = {
             "user_id": "692b9e2c0c45d7f4031812c4",
             "meter_id": self.meter_id,
             "reading": kw,
         }
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=data)
-            response.raise_for_status()
-            print(f"📡 HTTP Response: {response.status_code}")
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(url, json=data)
+                print(f"📡 HTTP Response: {response.status_code}")
+                if response.status_code >= 400:
+                    print(f"❌ Response body: {response.text}")
+                response.raise_for_status()
+        except Exception as e:
+            print(f"❌ Error posting meter reading: {type(e).__name__}: {e}")
+            raise
 
     def simulate_hourly_kwh(self, ts: datetime) -> float:
         """
