@@ -13,7 +13,7 @@ class GetUserResponse(BaseModel):
     # Image
     profile_image_url: str | None = None
     # Monthly usage
-    montly_usage_kwh: float | None = None
+    monthly_usage_kwh: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -48,7 +48,7 @@ class UserService:
             bsv_address=user.user_wallet.bsv_address if user.user_wallet else None,
             balance_satoshis=balance_satoshis,
             balance_euro=balance_euro,
-            montly_usage_kwh=monthly_usage_kwh,
+            monthly_usage_kwh=monthly_usage_kwh,
             profile_image_url=user.profile_image_url,
         )
 
