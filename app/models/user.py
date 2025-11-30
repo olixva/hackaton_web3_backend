@@ -15,6 +15,8 @@ class User(Model):
     created_at: datetime
     user_wallet: UserWallet
     profile_image_url: str | None = None
+    tariff: float = 0.15
+    preferred_currency: str = "EUR"
 
     class Settings:
         name = "users"

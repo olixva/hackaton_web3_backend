@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from app.dtos.user.user_response import GetUserResponse
 from app.dtos.user.user_response import CreateUserResponse
 from app.dtos.user.user_request import CreateUserRequest
+from app.dtos.user.user_request import PatchUserRequest
 # Models
 from app.models.user import User
 from beanie import PydanticObjectId
@@ -44,3 +45,27 @@ class UserService:
         await new_user.insert()
 
         return CreateUserResponse(id=str(new_user.id))
+
+    @staticmethod
+    async def patch_user(user_id: str, request: PatchUserRequest) -> GetUserResponse:
+        if not User.is_valid_id(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID format")
+        
+        user = await User.find_one(User.id == PydanticObjectId(user_id))
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if request.tariff is not None:
+            user.tariff = request.tariff
+        if request.preferred_currency is not None:
+            user.preferred_currency = request.preferred_currency
+
+        await user.save()
+
+        return GetUserResponse(
+            id=str(user.id),
+            name=user.name,
+            email=user.email,
+            bsv_address=user.user_wallet.bsv_address,
+            profile_image_url=user.profile_image_url,
+        )

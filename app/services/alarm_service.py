@@ -9,7 +9,6 @@ from app.models.alarm import AlarmType
 
 from app.dtos.alarm.alarm_request import CreateAlarmRequest
 from app.dtos.alarm.alarm_response import CreateAlarmResponse
-from app.dtos.alarm.alarm_response import GetAlarmResponse
 
 cache = TTLCache(maxsize=100, ttl=300)
 
@@ -43,7 +42,7 @@ class AlarmService:
         await alarm.delete()
 
     @staticmethod
-    async def get_alarm(alarm_id: str) -> GetAlarmResponse:
+    async def get_alarm(alarm_id: str) -> Alarm:
         if not Alarm.is_valid_id(alarm_id):
             raise HTTPException(status_code=400, detail="Invalid alarm ID format")
 
@@ -51,13 +50,7 @@ class AlarmService:
         if not alarm:
             raise HTTPException(status_code=404, detail="Alarm not found")
 
-        return GetAlarmResponse(
-            id=str(alarm.id),
-            user_id=str(alarm.user_id),
-            type=alarm.type,
-            threshold=alarm.threshold,
-            active=alarm.active,
-        )
+        return alarm
 
     @staticmethod
     async def toggle_alarm_active(alarm_id: str) -> None:
@@ -73,21 +66,12 @@ class AlarmService:
 
     @cached(cache)
     @staticmethod
-    async def get_alarms_by_user(user_id: str) -> list[GetAlarmResponse]:
+    async def get_alarms_by_user(user_id: str) -> list[Alarm]:
 
         if not Alarm.is_valid_id(user_id):
             raise HTTPException(status_code=400, detail="Invalid user ID format")
 
-        alarms = await Alarm.find({"user_id": PydanticObjectId(user_id)}).to_list()
-        return [
-            GetAlarmResponse(
-                id=str(alarm.id),
-                user_id=str(alarm.user_id),
-                type=alarm.type,
-                threshold=alarm.threshold,
-                active=alarm.active,
-            ) for alarm in alarms
-        ]
+        return await Alarm.find({"user_id": PydanticObjectId(user_id)}).to_list()
     
     @staticmethod
     async def is_triggered(alarm: Alarm, price: float, kw: float) -> bool:

@@ -15,3 +15,17 @@ class CreateUserRequest(BaseModel):
             }
         }
     )
+
+
+class PatchUserRequest(BaseModel):
+    tariff: float | None = None
+    preferred_currency: str | None = None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "tariff": 0.20,
+                "preferred_currency": "USD"
+            }
+        }
+    )

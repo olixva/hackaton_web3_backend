@@ -11,6 +11,8 @@ from app.dtos.meter.meter_request import CreateMeterRequest
 from app.dtos.meter.meter_request import StepEnum
 # Models
 from app.models.meter_reading import MeterReading
+from app.models.user import User
+from app.models.alarm import AlarmType
 # Services
 from app.services.alarm_service import AlarmService
 
@@ -28,10 +30,19 @@ class MeterService:
         if not MeterReading.is_valid_id(request.payment_id):
             raise HTTPException(status_code=400, detail="Invalid payment ID format")
 
+        # Get user for tariff
+        user = await User.find_one(User.id == PydanticObjectId(request.user_id))
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
         # Create new meter reading
+        kw_consumed = request.reading
+        cost_euro = request.cost_euro or (kw_consumed * user.tariff)
+
         new_meter = MeterReading(
             user_id=PydanticObjectId(request.user_id),
-            kw_consumed=request.reading,
+            kw_consumed=kw_consumed,
+            cost_euro=cost_euro,
             meter_id=request.meter_id,
             payment_id=PydanticObjectId(request.payment_id) if request.payment_id else None,
             timestamp=datetime.now(),
@@ -41,12 +52,13 @@ class MeterService:
         # Check if alarms are triggered
         alarms = await AlarmService.get_alarms_by_user(request.user_id)
         for alarm in alarms:
-            if await AlarmService.is_triggered(alarm, price=new_meter.kw_consumed * 0.12, kw=new_meter.kw_consumed):
+            price = kw_consumed * user.tariff
+            if await AlarmService.is_triggered(alarm, price=price, kw=kw_consumed):
                 # Log alarm if triggered
                 await AlarmService.log_alarm_history(
                     user_id=request.user_id,
                     alarm_id=str(alarm.id),
-                    value=new_meter.kw_consumed
+                    value=kw_consumed if alarm.type == AlarmType.ENERGY else price
                 )
 
         return CreateMeterResponse(id=str(new_meter.id))
@@ -72,6 +84,12 @@ class MeterService:
         if end_date is None:
             end_date = now.isoformat()
         
+        # Get user for tariff
+        user = await User.find_one(User.id == PydanticObjectId(user_id))
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        tariff = user.tariff
+        
         # Build match stage
         match_stage = MeterService._build_match_stage(
             start_date, 
@@ -95,6 +113,10 @@ class MeterService:
         # Execute aggregation
         results = await MeterReading.aggregate(pipeline).to_list()
         
+        # Calculate price using user's tariff
+        for result in results:
+            result["price"] = result["kw"] * tariff
+        
         # Convert to ChartItem
         chart_data = [
             ChartItem(timestamp=result["timestamp"], kw=result["kw"], price=result["price"])
@@ -109,7 +131,6 @@ class MeterService:
         group_stage = {
             "_id": group_id,
             "kw": {"$sum": "$kw_consumed"},
-            "price": {"$sum": {"$multiply": ["$kw_consumed", 0.5]}}
         }
         pipeline.extend([
             {"$group": group_stage},
@@ -123,7 +144,6 @@ class MeterService:
                     }
                 },
                 "kw": 1,
-                "price": 1
             }}
         ])
 
@@ -133,7 +153,6 @@ class MeterService:
         group_stage = {
             "_id": group_id,
             "kw": {"$sum": "$kw_consumed"},
-            "price": {"$sum": {"$multiply": ["$kw_consumed", 0.5]}}
         }
         pipeline.extend([
             {"$group": group_stage},
@@ -141,7 +160,6 @@ class MeterService:
             {"$project": {
                 "timestamp": {"$dateFromString": {"dateString": "$_id"}},
                 "kw": 1,
-                "price": 1
             }}
         ])
 
@@ -151,7 +169,6 @@ class MeterService:
         group_stage = {
             "_id": group_id,
             "kw": {"$sum": "$kw_consumed"},
-            "price": {"$sum": {"$multiply": ["$kw_consumed", 0.5]}}
         }
         pipeline.extend([
             {"$group": group_stage},
@@ -165,7 +182,6 @@ class MeterService:
                     }
                 },
                 "kw": 1,
-                "price": 1
             }}
         ])
 
@@ -175,7 +191,6 @@ class MeterService:
         group_stage = {
             "_id": group_id,
             "kw": {"$sum": "$kw_consumed"},
-            "price": {"$sum": {"$multiply": ["$kw_consumed", 0.5]}}
         }
         pipeline.extend([
             {"$group": group_stage},
@@ -183,7 +198,6 @@ class MeterService:
             {"$project": {
                 "timestamp": {"$dateFromString": {"dateString": {"$concat": ["$_id", ":00:00"]}}},
                 "kw": 1,
-                "price": 1
             }}
         ])
 
