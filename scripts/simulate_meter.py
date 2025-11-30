@@ -1,13 +1,11 @@
 from datetime import datetime
 import sys
 import os
+import httpx
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.services.meter_service import MeterService
-from app.dtos.meter.meter_request import CreateMeterRequest
-from app.config.mongo import MongoDbClient
 import asyncio
 
 
@@ -17,14 +15,18 @@ class SimulateMeter:
     meter_id = "meter_001"
     base_hourly_kwh = 0.75
 
-    # Post meter readings to the backend
+    # Post meter readings to the backend via HTTP
     async def post_meter_reading(self, kw: float):
-        request = CreateMeterRequest(
-            user_id="692b9e2c0c45d7f4031812c4",
-            meter_id=self.meter_id,
-            reading=kw,
-        )
-        await MeterService.create_meter(request)
+        url = "https://hackaton-web3-backend.vercel.app//meter"
+        data = {
+            "user_id": "692b9e2c0c45d7f4031812c4",
+            "meter_id": self.meter_id,
+            "reading": kw,
+        }
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data)
+            response.raise_for_status()
+            print(f"📡 HTTP Response: {response.status_code}")
 
     def simulate_hourly_kwh(self, ts: datetime) -> float:
         """
@@ -68,10 +70,6 @@ class SimulateMeter:
 
 
 async def main():
-    # Initialize DB
-    client = MongoDbClient()
-    await client.init()
-
     simulator = SimulateMeter()
     print("🚀 Iniciando simulación de medidor en segundo plano...")
     print("📊 Simulando lecturas cada hora.\n")
@@ -84,8 +82,8 @@ async def main():
             print(f"✅ [{now.strftime('%Y-%m-%d %H:%M:%S')}] Lectura enviada: {kw:.2f} kWh (hora: {now.hour})")
             print("⏳ Esperando 1 hora para la siguiente simulación...\n")
             await asyncio.sleep(20)
-    finally:
-        await client.close()
+    except Exception as e:
+        print(f"❌ Error en simulación: {e}")
 
 
 if __name__ == "__main__":
