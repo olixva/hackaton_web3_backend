@@ -7,7 +7,6 @@ from beanie import PydanticObjectId
 
 class Payment(Model):
     user_id: PydanticObjectId
-    meter_reading_id: PydanticObjectId
     amount_sats: float
     amount_euro: float
     tx_id: str
