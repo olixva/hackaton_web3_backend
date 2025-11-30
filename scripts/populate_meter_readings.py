@@ -72,7 +72,6 @@ async def populate_hourly_meter_readings(
             meter_id=meter_id,
             kw_consumed=round(kw, 3),
             timestamp=current_time,
-            payment_id=None,   # datos de ejemplo -> sin pago asociado
         )
         readings.append(reading_doc)
 

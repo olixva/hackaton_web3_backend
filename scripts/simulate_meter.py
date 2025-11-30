@@ -18,12 +18,11 @@ class SimulateMeter:
     base_hourly_kwh = 0.75
 
     # Post meter readings to the backend
-    async def post_meter_reading(self, ts: datetime, kw: float):
+    async def post_meter_reading(self, kw: float):
         request = CreateMeterRequest(
             user_id="692b9e2c0c45d7f4031812c4",
             meter_id=self.meter_id,
             reading=kw,
-            payment_id="507f1f77bcf86cd799439011",  # Dummy valid ObjectId
         )
         await MeterService.create_meter(request)
 
@@ -81,7 +80,7 @@ async def main():
         while True:
             now = datetime.now()
             kw = simulator.simulate_hourly_kwh(now)
-            await simulator.post_meter_reading(now, kw)
+            await simulator.post_meter_reading(kw)
             print(f"✅ [{now.strftime('%Y-%m-%d %H:%M:%S')}] Lectura enviada: {kw:.2f} kWh (hora: {now.hour})")
             print("⏳ Esperando 1 hora para la siguiente simulación...\n")
             await asyncio.sleep(3600)
