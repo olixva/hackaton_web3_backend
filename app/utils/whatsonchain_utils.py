@@ -95,6 +95,28 @@ class WhatsOnChainUtils:
         return data.get("bitcoin-cash-sv", {}).get("eur", 0.0)
 
     @staticmethod
+    async def validate_transaction(txid: str, pay_to: str, expected_satoshis: int) -> bool:
+        url = f"https://api.whatsonchain.com/v1/bsv/main/tx/{txid}"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers=WhatsOnChainUtils._headers())
+            if resp.status_code != 200:
+                return False
+        tx_data = resp.json()
+        
+        # Check if confirmed
+        if tx_data.get("blockheight", -1) == -1:
+            return False  # Not confirmed
+        
+        # Check outputs
+        for output in tx_data.get("vout", []):
+            script_pub_key = output.get("scriptPubKey", {})
+            addresses = script_pub_key.get("addresses", [])
+            if pay_to in addresses and output.get("value", 0) == expected_satoshis / 100000000:
+                return True
+        
+        return False
+
+    @staticmethod
     def _headers() -> dict:
         api_key = getattr(settings, "WOC_API_KEY", None)
         if api_key:

@@ -83,7 +83,7 @@ async def main():
             await simulator.post_meter_reading(kw)
             print(f"✅ [{now.strftime('%Y-%m-%d %H:%M:%S')}] Lectura enviada: {kw:.2f} kWh (hora: {now.hour})")
             print("⏳ Esperando 1 hora para la siguiente simulación...\n")
-            await asyncio.sleep(3600)
+            await asyncio.sleep(20)
     finally:
         await client.close()
 

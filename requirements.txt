@@ -9,3 +9,5 @@ bsv-sdk
 cryptography
 # Cache
 cachetools
+# x402
+x402
