@@ -1,11 +1,14 @@
+# Import BSV library for private key generation
 from bsv import PrivateKey
 
+# Import UserWallet model and encryption utilities
 from app.models.user import UserWallet
 from app.utils.encryption_utils import EncryptionUtils
 
-
+# WalletService class handles BSV wallet creation
 class WalletService:
 
+    # Generate a new BSV wallet with encrypted private key
     @staticmethod
     def create_wallet() -> UserWallet:
         private_key = PrivateKey()

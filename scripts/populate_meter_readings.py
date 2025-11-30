@@ -4,7 +4,7 @@ from typing import Optional
 import sys
 import os
 
-# Add the project root to the Python path
+# Add the project root to the Python path to enable imports from the app directory
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from beanie import PydanticObjectId
@@ -12,7 +12,7 @@ from beanie import PydanticObjectId
 from app.config.mongo import MongoDbClient
 from app.models.meter_reading import MeterReading
 
-
+# Asynchronous function to populate hourly meter readings for a user
 async def populate_hourly_meter_readings(
     user_id: str,
     meter_id: str = "meter_001",
@@ -22,14 +22,14 @@ async def populate_hourly_meter_readings(
     end_datetime: Optional[datetime] = None,
 ) -> None:
     """
-    Genera lecturas horarias de consumo para un único usuario.
+    Generates hourly consumption readings for a single user.
 
-    - user_id: ObjectId del usuario (string).
-    - meter_id: identificador del contador.
-    - days: número de días hacia atrás desde end_datetime (por defecto, ahora).
-    - avg_daily_kwh: consumo medio diario esperado en kWh.
-    - clear_existing: si True, borra lecturas previas de ese usuario/contador en el rango.
-    - end_datetime: fin del rango de simulación (por defecto, datetime.now redondeado a hora).
+    - user_id: ObjectId of the user (string).
+    - meter_id: meter identifier.
+    - days: number of days back from end_datetime (default, now).
+    - avg_daily_kwh: expected average daily consumption in kWh.
+    - clear_existing: if True, deletes previous readings of that user/meter in the range.
+    - end_datetime: end of the simulation range (default, datetime.now rounded to hour).
     """
 
     client = MongoDbClient()
@@ -55,7 +55,7 @@ async def populate_hourly_meter_readings(
 
     total_hours = int((end_datetime - start_datetime).total_seconds() // 3600)
     if total_hours <= 0:
-        print("Rango de fechas inválido, no se generan datos.")
+        print("Invalid date range, no data generated.")
         await client.close()
         return
 
@@ -79,28 +79,28 @@ async def populate_hourly_meter_readings(
 
     if readings:
         res = await MeterReading.insert_many(readings)
-        print(f"Insertadas {len(res.inserted_ids)} lecturas horarias.")
+        print(f"Inserted {len(res.inserted_ids)} hourly readings.")
     else:
-        print("No se insertó ninguna lectura.")
+        print("No readings inserted.")
 
     await client.close()
 
-
+# Helper function to simulate hourly kWh consumption
 def _simulate_hourly_kwh(ts: datetime, base_hourly_kwh: float) -> float:
     """
-    Simulación sencilla:
-    - Más consumo 18:00–22:00.
-    - Pico secundario 7:00–9:00.
-    - Menos consumo de madrugada.
-    - Invierno consume algo más, verano algo menos.
-    - Un poco de ruido aleatorio.
+    Simple simulation:
+    - More consumption 18:00–22:00.
+    - Secondary peak 7:00–9:00.
+    - Less consumption at night.
+    - Winter consumes a bit more, summer a bit less.
+    - A bit of random noise.
     """
     import random
 
     hour = ts.hour
     month = ts.month
 
-    # Perfil horario muy simple
+    # Very simple hourly profile
     if 0 <= hour < 6:
         hour_factor = 0.3
     elif 6 <= hour < 9:
@@ -112,23 +112,23 @@ def _simulate_hourly_kwh(ts: datetime, base_hourly_kwh: float) -> float:
     else:  # 22-24
         hour_factor = 0.9
 
-    # Estación del año muy sencilla
-    if month in (12, 1, 2):      # invierno
+    # Very simple seasonality
+    if month in (12, 1, 2):      # winter
         season_factor = 1.3
-    elif month in (6, 7, 8):     # verano
+    elif month in (6, 7, 8):     # summer
         season_factor = 0.8
-    else:                        # primavera / otoño
+    else:                        # spring / autumn
         season_factor = 1.0
 
-    # Ruido aleatorio ±20%
+    # Random noise ±20%
     noise = random.uniform(0.8, 1.2)
 
     kw = base_hourly_kwh * hour_factor * season_factor * noise
     return max(kw, base_hourly_kwh * 0.1)
 
-
+# Main asynchronous function to run the population script
 async def main():
-    # Cambia este ID por uno real de tu base de datos
+    # Change this ID to a real one from your database
     user_id = "692b9e2c0c45d7f4031812c4"
     meter_id = "meter_001"
 
@@ -140,6 +140,6 @@ async def main():
         clear_existing=True,
     )
 
-
+# Entry point to run the script
 if __name__ == "__main__":
     asyncio.run(main())

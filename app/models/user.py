@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserWallet(BaseModel):
+    """Embedded model for user's BSV wallet information."""
     bsv_address: str
     bsv_public_key: str
     encrypted_wif: str
@@ -12,6 +13,7 @@ class UserWallet(BaseModel):
 
 
 class User(Model):
+    """User document model with personal and wallet information."""
     name: str
     email: EmailStr
     created_at: datetime

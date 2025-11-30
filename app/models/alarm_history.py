@@ -4,6 +4,7 @@ from beanie import PydanticObjectId
 
 
 class AlarmHistory(Model):
+    """Alarm history document model for logging triggered alarms."""
     user_id: PydanticObjectId
     alarm_id: PydanticObjectId
     value: float

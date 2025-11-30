@@ -3,6 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+
     # MongoDB Configuration
     MONGODB_URL: str = "mongodb://localhost:27017"
 
@@ -16,11 +18,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
 
 
-# Load settings and cache them
+# Load settings and cache them for performance
 @lru_cache
 def get_settings() -> Settings:
+    """Get cached settings instance."""
     return Settings()
 
 
-# Easy access to the setting
+# Easy access to the settings instance
 settings = get_settings()

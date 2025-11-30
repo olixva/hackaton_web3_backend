@@ -1,7 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 
-
+# Response model for getting user details, including wallet balance and usage
 class GetUserResponse(BaseModel):
+    """Response model for retrieving user information."""
     # Base fields
     id: str
     name: str
@@ -17,7 +18,9 @@ class GetUserResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+# Response model for user creation, returning the new user ID
 class CreateUserResponse(BaseModel):
+    """Response model for user creation."""
     id: str
 
     model_config = ConfigDict(from_attributes=True)

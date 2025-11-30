@@ -3,7 +3,7 @@ from datetime import datetime
 
 from app.models.alarm import AlarmType
 
-
+# Response model for alarm creation, containing the generated alarm ID
 class CreateAlarmResponse(BaseModel):
     id: str
 
@@ -15,7 +15,7 @@ class CreateAlarmResponse(BaseModel):
         }
     )
 
-
+# Response model for retrieving alarm details
 class GetAlarmResponse(BaseModel):
     id: str
     user_id: str
@@ -35,7 +35,7 @@ class GetAlarmResponse(BaseModel):
         }
     )
 
-
+# Response model for alarm history entries, showing when alarms were triggered
 class AlarmHistoryResponse(BaseModel):
     id: str
     user_id: str

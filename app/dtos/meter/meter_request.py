@@ -1,8 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from enum import Enum
 
-## Create Meter Request ##
-
+# Request model for creating a new meter reading entry
 class CreateMeterRequest(BaseModel):
     user_id: str
     meter_id: str
@@ -18,8 +17,7 @@ class CreateMeterRequest(BaseModel):
         }
     )
 
-## Generate Chart Request ##
-
+# Enumeration for chart aggregation steps (daily, weekly, etc.)
 class StepEnum(str, Enum):
     DAILY = "daily"
     WEEKLY = "weekly"

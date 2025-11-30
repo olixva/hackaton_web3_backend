@@ -4,11 +4,13 @@ from beanie import PydanticObjectId
 
 
 class AlarmType(str, Enum):
+    """Enumeration for alarm types."""
     MONEY = "money"
     ENERGY = "energy"
 
 
 class Alarm(Model):
+    """Alarm document model for user-defined thresholds."""
     user_id: PydanticObjectId
     threshold: float
     type: AlarmType

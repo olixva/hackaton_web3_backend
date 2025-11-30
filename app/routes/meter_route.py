@@ -1,29 +1,30 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-# DTOs
+# Import DTOs for meter request and response models
 from app.dtos.meter.meter_request import CreateMeterRequest
 from app.dtos.meter.meter_response import GenerateChartMeterResponse
 from app.dtos.meter.meter_request import StepEnum
 from app.dtos.meter.meter_response import CreateMeterResponse
-# Models
+# Import User model for aggregation
 from app.models.user import User
-# Services
+# Import meter service for business logic
 from app.services.meter_service import MeterService
-# Utils
+# Import utilities for BSV operations
 from app.utils.whatsonchain_utils import WhatsOnChainUtils
-# x402
-# Removed imports to avoid validation issues with BSV
+# Import for manual x402 payment decoding
 import json
 from x402.encoding import safe_base64_decode
 
+# Create router for meter-related endpoints with prefix and tags
 meter_router = APIRouter(prefix="/meter", tags=["meter"])
 
-
+# Endpoint to create a new meter reading
 @meter_router.post("", response_model=CreateMeterResponse)
 async def create_meter(request: CreateMeterRequest):
     return await MeterService.create_meter(request)
 
+# Endpoint to generate consumption chart for a user with optional date range and step
 @meter_router.get("/chart", response_model=GenerateChartMeterResponse)
 async def generate_chart(
     user_id: str,
@@ -43,9 +44,10 @@ async def generate_chart(
         step=step_enum
     )
 
+# Paywalled endpoint to get aggregated chart data for all users using manual x402 for BSV payments
 @meter_router.get("/chart/users")
 async def get_users_chart(request: Request):
-    # Manual x402 payment check for BSV
+    # Define payment requirements for x402 protocol
     payment_requirements = {
         "scheme": "exact",
         "network": "bsv",  # Custom for BSV
@@ -58,6 +60,7 @@ async def get_users_chart(request: Request):
         "maxTimeoutSeconds": 60,
     }
     
+    # Check for X-PAYMENT header
     payment_header = request.headers.get("X-PAYMENT", "")
     if payment_header == "":
         return JSONResponse(
@@ -69,7 +72,7 @@ async def get_users_chart(request: Request):
             status_code=402
         )
     
-    # Decode payment header (assuming it's base64 encoded JSON with txid)
+    # Decode and validate payment header
     try:
         payment_data = json.loads(safe_base64_decode(payment_header))
         txid = payment_data.get("txid")
@@ -85,7 +88,7 @@ async def get_users_chart(request: Request):
             status_code=402
         )
     
-    # Validate transaction
+    # Validate the BSV transaction
     if not await WhatsOnChainUtils.validate_transaction(txid, "12HKnZrJ8Fcx2F8SgJHUrV9uvGNo4eoveD", 100):
         return JSONResponse(
             content={
@@ -96,7 +99,7 @@ async def get_users_chart(request: Request):
             status_code=402
         )
     
-    # Aggregate data for all users
+    # Aggregate data across all users
     users = await User.find_all().to_list()
     
     total_users = len(users)
