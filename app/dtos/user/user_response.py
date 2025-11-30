@@ -8,6 +8,8 @@ class GetUserResponse(BaseModel):
     email: str
     # Wallet
     bsv_address: str | None = None
+    balance_satoshis: int | None = None
+    balance_euro: float | None = None
     # Image
     profile_image_url: str | None = None
 

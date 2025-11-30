@@ -7,6 +7,8 @@ class UserWallet(BaseModel):
     bsv_address: str
     bsv_public_key: str
     encrypted_wif: str
+    balance_satoshis: int = 0
+    balance_euro: float = 0.0
 
 
 class User(Model):
