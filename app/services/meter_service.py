@@ -15,6 +15,7 @@ from app.models.user import User
 from app.models.alarm import AlarmType
 # Services
 from app.services.alarm_service import AlarmService
+from app.services.payment_service import PaymentService
 
 
 class MeterService:
@@ -24,10 +25,7 @@ class MeterService:
         if not MeterReading.is_valid_id(request.user_id):
             raise HTTPException(status_code=400, detail="Invalid user ID format")
         
-        # TODO: Try to pay if we cant possible default
-        if not request.payment_id:
-            ## Possible defaulter case, allow None
-            pass
+        payment_id = (await PaymentService.make_payment(request.user_id, amount_satoshis=100)).id  #TODO Calculate satoshis
 
         # Get user for tariff
         user = await User.find_one({"_id": PydanticObjectId(request.user_id)})
@@ -36,15 +34,15 @@ class MeterService:
 
         # Create new meter reading
         kw_consumed = request.reading
-        cost_euro = request.cost_euro or (kw_consumed * user.tariff)
+        cost_euro = kw_consumed * user.tariff
 
         new_meter = MeterReading(
             user_id=PydanticObjectId(request.user_id),
             kw_consumed=kw_consumed,
             cost_euro=cost_euro,
             meter_id=request.meter_id,
-            payment_id=PydanticObjectId(request.payment_id) if request.payment_id else None,
-            timestamp=datetime.now(),
+            payment_id=PydanticObjectId(payment_id),
+            timestamp=datetime.now()
         )
         await new_meter.insert()
 
