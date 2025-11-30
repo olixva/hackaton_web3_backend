@@ -64,7 +64,6 @@ class AlarmService:
         alarm.active = not alarm.active
         await alarm.save()
 
-    @cached(cache)
     @staticmethod
     async def get_alarms_by_user(user_id: str) -> list[Alarm]:
 
