@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from beanie import PydanticObjectId
 from fastapi import HTTPException
 from typing import Any
 
@@ -10,7 +11,8 @@ from app.dtos.meter.meter_request import CreateMeterRequest
 from app.dtos.meter.meter_request import StepEnum
 # Models
 from app.models.meter_reading import MeterReading
-from beanie import PydanticObjectId
+# Services
+from app.services.alarm_service import AlarmService
 
 
 class MeterService:
@@ -26,6 +28,7 @@ class MeterService:
         if not MeterReading.is_valid_id(request.payment_id):
             raise HTTPException(status_code=400, detail="Invalid payment ID format")
 
+        # Create new meter reading
         new_meter = MeterReading(
             user_id=PydanticObjectId(request.user_id),
             kw_consumed=request.reading,
@@ -34,6 +37,17 @@ class MeterService:
             timestamp=datetime.now(),
         )
         await new_meter.insert()
+
+        # Check if alarms are triggered
+        alarms = await AlarmService.get_alarms_by_user(request.user_id)
+        for alarm in alarms:
+            if await AlarmService.is_triggered(alarm, price=new_meter.kw_consumed * 0.12, kw=new_meter.kw_consumed):
+                # Log alarm if triggered
+                await AlarmService.log_alarm_history(
+                    user_id=request.user_id,
+                    alarm_id=str(alarm.id),
+                    value=new_meter.kw_consumed
+                )
 
         return CreateMeterResponse(id=str(new_meter.id))
     

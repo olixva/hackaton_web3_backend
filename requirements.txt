@@ -7,3 +7,5 @@ pydantic_settings
 # Blockchain
 bsv-sdk
 cryptography
+# Cache
+cachetools

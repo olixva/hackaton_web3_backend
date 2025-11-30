@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Routers
 from app.routes.user_route import user_router
 from app.routes.meter_route import meter_router
+from app.routes.alarm_route import alarm_router
 
 # Database
 from app.config.mongo import MongoDbClient
@@ -35,3 +36,4 @@ app.add_middleware(
 
 app.include_router(user_router)
 app.include_router(meter_router)
+app.include_router(alarm_router)

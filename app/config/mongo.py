@@ -5,11 +5,12 @@ from app.config.settings import settings
 from app.models.meter_reading import MeterReading
 from app.models.payment import Payment
 from app.models.user import User
+from app.models.alarm import Alarm
 
 
 class MongoDbClient:
     def __init__(self, database_name: str = "hackaton_web3_db"):
-        self.models = [MeterReading, Payment, User]
+        self.models = [MeterReading, Payment, User, Alarm]
         self.client = AsyncMongoClient(settings.MONGODB_URL)
         self.database_name = database_name
 
