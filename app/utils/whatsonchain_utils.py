@@ -1,5 +1,4 @@
 import httpx
-import requests
 from typing import Tuple
 
 from app.config.settings import settings
@@ -79,22 +78,25 @@ class WhatsOnChainUtils:
         return source_tx, tx_pos
     
     @staticmethod
-    def get_balance(address: str) -> dict:
+    async def get_balance(address: str) -> int:
         url = f"https://api.whatsonchain.com/v1/bsv/main/address/{address}/balance"
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers=WhatsOnChainUtils._headers())
+            resp.raise_for_status()
+        data = resp.json()
+        return data.get("confirmed", 0) + data.get("unconfirmed", 0)
 
     @staticmethod
-    def convert_satoshis_to_euro(satoshis: int) -> float:
+    async def convert_satoshis_to_euro(satoshis: int) -> float:
         bsv_amount = satoshis / 100000000 
-        bsv_price_eur = WhatsOnChainUtils.get_bsv_price_eur()
+        bsv_price_eur = await WhatsOnChainUtils.get_bsv_price_eur()
         return bsv_amount * bsv_price_eur
 
     @staticmethod
-    def get_bsv_price_eur() -> float:
-        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash-sv&vs_currencies=eur"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        return data.get("bitcoin-cash-sv", {}).get("eur", 0.0)
+    async def get_bsv_price_eur() -> float:
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-sv&vs_currencies=eur"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+        data = resp.json()
+        return data.get("bitcoin-sv", {}).get("eur", 0.0)
